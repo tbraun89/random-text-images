@@ -4,7 +4,8 @@ require 'optparse'
 options = {
     letter_count: 5,
     image_count:  20,
-    noise:        'UniformNoise'
+    noise:        'UniformNoise',
+    text:         nil
 }
 
 OptionParser.new do |opts|
@@ -23,16 +24,24 @@ OptionParser.new do |opts|
     options[:noise] = n.to_sym
   end
 
+  opts.on('-t', '--text STRING', 'The text to generate a image from. (diables -lc)') do |text|
+    options[:text] = text
+  end
+
   opts.on('-h', '--help', 'Display this help.') do
     puts opts
     exit
   end
 end.parse!
 
-def gen_image(options)
-  characters = [*('a'..'z'), *('A'..'Z'), *('0'..'9')].sample(options[:letter_count])
+def gen_image(options, index)
+  if options[:text]
+    characters = options[:text].split(//)
+  else
+    characters = [*('a'..'z'), *('A'..'Z'), *('0'..'9')].sample(options[:letter_count])
+  end
 
-  canvas = Magick::Image.new(50 * options[:letter_count], 50)
+  canvas = Magick::Image.new(50 * characters.size, 50)
   gc     = Magick::Draw.new
 
   characters.each_with_index do |cahr, i|
@@ -45,9 +54,9 @@ def gen_image(options)
   canvas = canvas.add_noise(Magick.const_get(options[:noise]))
   canvas = canvas.quantize(256, Magick::GRAYColorspace)
 
-  canvas.write("gen/#{characters.join}.png")
+  canvas.write("gen/#{characters.join}_#{index}.png")
 end
 
-options[:image_count].times do
-  gen_image(options)
+options[:image_count].times do |i|
+  gen_image(options, i)
 end
