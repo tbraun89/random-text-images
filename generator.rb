@@ -24,7 +24,7 @@ OptionParser.new do |opts|
     options[:noise] = n.to_sym
   end
 
-  opts.on('-t', '--text STRING', 'The text to generate a image from. (diables -lc)') do |text|
+  opts.on('-t', '--text STRING', 'The content if the image. (disables -lc)') do |text|
     options[:text] = text
   end
 
